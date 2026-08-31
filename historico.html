@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histórico — Dosadora Granular</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .titulo-pagina { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  .titulo-pagina h1 { font-size: 1.8rem; margin: 0 0 4px; }
+  .titulo-pagina p { margin: 0; color: var(--texto-fraco); }
+
+  .btn-limpar {
+    background: transparent;
+    border: 1px solid var(--painel-borda);
+    color: var(--texto-fraco);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .btn-limpar:hover { color: var(--texto); border-color: var(--alerta); }
+
+  #grafico { width: 100%; height: 220px; display: block; }
+
+  .legenda { display: flex; gap: 18px; margin-top: 14px; font-size: 0.8rem; color: var(--texto-fraco); }
+  .legenda .item { display: flex; align-items: center; gap: 6px; }
+  .legenda .cor { width: 10px; height: 10px; border-radius: 2px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  th, td {
+    text-align: left;
+    padding: 10px 8px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--painel-borda);
+  }
+  th { color: var(--texto-fraco); font-weight: 500; }
+
+  .vazio { text-align: center; color: var(--texto-fraco); padding: 32px 0; }
+</style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="marca">Dosadora<span>Granular</span></div>
+    <nav>
+      <a href="index.html">Painel</a>
+      <a href="sobre.html">Sobre</a>
+      <a href="historico.html" class="ativo">Histórico</a>
+    </nav>
+  </header>
+
+  <main class="conteudo">
+    <div class="titulo-pagina">
+      <div>
+        <h1>Histórico de Dosagens</h1>
+        <p>Últimas dosagens registradas neste navegador</p>
+      </div>
+      <button class="btn-limpar" id="btnLimpar">Limpar histórico</button>
+    </div>
+
+    <section class="painel">
+      <svg id="grafico" viewBox="0 0 600 220"></svg>
+      <div class="legenda">
+        <span class="item"><span class="cor" style="background:#4E1F8C"></span> meta (g)</span>
+        <span class="item"><span class="cor" style="background:#833dd9"></span> peso final (g)</span>
+      </div>
+    </section>
+
+    <section class="painel">
+      <table id="tabela">
+        <thead>
+          <tr><th>Data/Hora</th><th>Meta (g)</th><th>Peso final (g)</th></tr>
+        </thead>
+        <tbody id="corpoTabela"></tbody>
+      </table>
+      <div class="vazio" id="mensagemVazio" style="display:none;">Nenhuma dosagem registrada ainda.</div>
+    </section>
+  </main>
+
+  <footer class="rodape">Projeto Dosadora Granular — Grupo 3</footer>
+
+<script src="historico.js"></script>
+<script>
+  function formatarData(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function desenharGrafico(registros) {
+    const svg = document.getElementById("grafico");
+    svg.innerHTML = "";
+
+    if (registros.length === 0) return;
+
+    const largura = 600, altura = 220, margem = 30;
+    const maxValor = Math.max(...registros.map(r => Math.max(r.meta, r.pesoFinal))) * 1.15 || 1;
+    const larguraGrupo = (largura - margem * 2) / registros.length;
+
+    registros.forEach((r, i) => {
+      const x = margem + i * larguraGrupo;
+      const alturaMeta = (r.meta / maxValor) * (altura - margem);
+      const alturaPeso = (r.pesoFinal / maxValor) * (altura - margem);
+
+      const barraMeta = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      barraMeta.setAttribute("x", x + larguraGrupo * 0.15);
+      barraMeta.setAttribute("y", altura - margem - alturaMeta);
+      barraMeta.setAttribute("width", larguraGrupo * 0.3);
+      barraMeta.setAttribute("height", alturaMeta);
+      barraMeta.setAttribute("fill", "#4E1F8C");
+      barraMeta.setAttribute("rx", "2");
+      svg.appendChild(barraMeta);
+
+      const barraPeso = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      barraPeso.setAttribute("x", x + larguraGrupo * 0.5);
+      barraPeso.setAttribute("y", altura - margem - alturaPeso);
+      barraPeso.setAttribute("width", larguraGrupo * 0.3);
+      barraPeso.setAttribute("height", alturaPeso);
+      barraPeso.setAttribute("fill", "#833dd9");
+      barraPeso.setAttribute("rx", "2");
+      svg.appendChild(barraPeso);
+    });
+
+    const linhaBase = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    linhaBase.setAttribute("x1", margem);
+    linhaBase.setAttribute("x2", largura - margem);
+    linhaBase.setAttribute("y1", altura - margem);
+    linhaBase.setAttribute("y2", altura - margem);
+    linhaBase.setAttribute("stroke", "#2A2733");
+    svg.appendChild(linhaBase);
+  }
+
+  function preencherTabela(registros) {
+    const corpo = document.getElementById("corpoTabela");
+    const vazio = document.getElementById("mensagemVazio");
+    corpo.innerHTML = "";
+
+    if (registros.length === 0) {
+      vazio.style.display = "block";
+      return;
+    }
+    vazio.style.display = "none";
+
+    [...registros].reverse().forEach(r => {
+      const linha = document.createElement("tr");
+      linha.innerHTML = `<td>${formatarData(r.data)}</td><td>${r.meta}</td><td>${r.pesoFinal}</td>`;
+      corpo.appendChild(linha);
+    });
+  }
+
+  function renderizar() {
+    const registros = obterHistorico();
+    desenharGrafico(registros);
+    preencherTabela(registros);
+  }
+
+  document.getElementById("btnLimpar").addEventListener("click", () => {
+    limparHistorico();
+    renderizar();
+  });
+
+  renderizar();
+</script>
+</body>
+</html>

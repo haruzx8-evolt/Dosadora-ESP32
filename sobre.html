@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sobre — Dosadora Granular</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .titulo-pagina { margin-bottom: 24px; }
+  .titulo-pagina h1 { font-size: 1.8rem; margin: 0 0 4px; }
+  .titulo-pagina p { margin: 0; color: var(--texto-fraco); }
+
+  .painel h2 {
+    font-size: 1.1rem;
+    margin: 0 0 12px;
+    color: var(--roxo-claro);
+  }
+
+  .painel p { line-height: 1.6; color: var(--texto); margin: 0 0 12px; }
+  .painel p:last-child { margin-bottom: 0; }
+
+  .especificacoes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .especificacao {
+    background: #000;
+    border: 1px solid var(--painel-borda);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .especificacao .rotulo { font-size: 0.78rem; color: var(--texto-fraco); }
+  .especificacao .valor { font-family: "Rajdhani", sans-serif; font-size: 1.15rem; font-weight: 600; }
+
+  .integrantes { list-style: none; padding: 0; margin: 0; }
+  .integrantes li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--painel-borda);
+    color: var(--texto);
+  }
+  .integrantes li:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="marca">Dosadora<span>Granular</span></div>
+    <nav>
+      <a href="index.html">Painel</a>
+      <a href="sobre.html" class="ativo">Sobre</a>
+      <a href="historico.html">Histórico</a>
+    </nav>
+  </header>
+
+  <main class="conteudo">
+    <div class="titulo-pagina">
+      <h1>Sobre o Projeto</h1>
+      <p>Dosadora automática de materiais granulares com ESP32</p>
+    </div>
+
+    <section class="painel">
+      <h2>O que é</h2>
+      <p>
+        Sistema de dosagem automática desenvolvido com ESP32, que utiliza uma célula de carga (HX711)
+        para medir o peso do material em tempo real e controla uma bomba/rosca sem-fim e um servo motor
+        para liberar a quantidade exata configurada pelo usuário. O controle e o monitoramento são feitos
+        remotamente por este site, que se comunica com o ESP32 através de uma API REST na rede local.
+      </p>
+
+      <div class="especificacoes">
+        <div class="especificacao">
+          <div class="rotulo">Microcontrolador</div>
+          <div class="valor">ESP32</div>
+        </div>
+        <div class="especificacao">
+          <div class="rotulo">Sensor de peso</div>
+          <div class="valor">Célula de carga + HX711</div>
+        </div>
+        <div class="especificacao">
+          <div class="rotulo">Atuadores</div>
+          <div class="valor">Bomba/rosca + Servo</div>
+        </div>
+        <div class="especificacao">
+          <div class="rotulo">Comunicação</div>
+          <div class="valor">Wi-Fi / REST API</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="painel">
+      <h2>Integrantes</h2>
+      <ul class="integrantes">
+        <li>[Henry]</li>
+        <li>[Caio de Castro]</li>
+        <li>[Eduardo]</li>
+         <li>[Davi]</li>
+        <li>[Danilo]</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="rodape">Projeto Dosadora Granular — Grupo 3</footer>
+</body>
+</html>
