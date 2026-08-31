@@ -1,6 +1,6 @@
 //Trabalho feito por:
 
-//Henry, Caio de Castro, Eduardo, Danilo e Davi
+//Henry, Caio de Castro, Eduardo, Danilo e Davi.
 
 
 
