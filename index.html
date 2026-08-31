@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dosadora Granular — Painel de Controle</title>
+<style>
+  :root {
+    --grafite:      #1B1A17;
+    --painel:       #24221D;
+    --painel-borda: #3A362C;
+    --grao:         #D99A3D;
+    --grao-escuro:  #A8721F;
+    --texto:        #ECE7DB;
+    --texto-fraco:  #93897A;
+    --ok:           #5C8A6E;
+    --alerta:       #B4552F;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--grafite);
+    background-image:
+      repeating-linear-gradient(45deg, rgba(217,154,61,0.025) 0px, rgba(217,154,61,0.025) 1px, transparent 1px, transparent 12px);
+    color: var(--texto);
+    font-family: "Segoe UI", Roboto, -apple-system, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  main { width: 100%; max-width: 640px; }
+
+  header {
+    margin-bottom: 28px;
+  }
+
+  header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+    letter-spacing: 0.2px;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--texto-fraco);
+    font-size: 0.9rem;
+  }
+
+  .config {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .config input {
+    flex: 1;
+    background: var(--painel);
+    border: 1px solid var(--painel-borda);
+    color: var(--texto);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+  }
+
+  .config button, .acoes button, .dosagem button {
+    background: var(--grao);
+    color: #1B1A17;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .config button:hover, .acoes button:hover, .dosagem button:hover {
+    background: #E5AC57;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    background: var(--alerta);
+  }
+  .status-dot.conectado { background: var(--ok); }
+
+  .painel {
+    background: var(--painel);
+    border: 1px solid var(--painel-borda);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .peso {
+    text-align: center;
+    padding: 12px 0 20px;
+  }
+
+  .peso .valor {
+    font-size: 3.4rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--grao);
+    line-height: 1;
+  }
+
+  .peso .unidade {
+    font-size: 1.1rem;
+    color: var(--texto-fraco);
+    margin-left: 4px;
+  }
+
+  .peso .rotulo {
+    color: var(--texto-fraco);
+    font-size: 0.85rem;
+    margin-top: 6px;
+  }
+
+  .linha-status {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--texto-fraco);
+    padding-top: 12px;
+    border-top: 1px solid var(--painel-borda);
+  }
+
+  .acoes {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .acoes button {
+    flex: 1;
+    background: transparent;
+    border: 1px solid var(--painel-borda);
+    color: var(--texto);
+  }
+
+  .acoes button.ligado {
+    background: var(--grao);
+    color: #1B1A17;
+    border-color: var(--grao);
+  }
+
+  .dosagem {
+    display: flex;
+    gap: 10px;
+  }
+
+  .dosagem input {
+    flex: 1;
+    background: var(--painel);
+    border: 1px solid var(--painel-borda);
+    color: var(--texto);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dosagem button.parar {
+    background: var(--alerta);
+    color: var(--texto);
+  }
+
+  .servo-controle {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--painel-borda);
+  }
+
+  .servo-controle label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--texto-fraco);
+    margin-bottom: 8px;
+  }
+
+  .servo-controle input[type="range"] {
+    width: 100%;
+    accent-color: var(--grao);
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Dosadora Granular</h1>
+    <p><span id="statusDot" class="status-dot"></span><span id="statusTexto">desconectado</span></p>
+  </header>
+
+  <div class="config">
+    <input id="ipEsp32" type="text" placeholder="IP do ESP32, ex: 192.168.1.42" value="192.168.1.42">
+    <button id="btnConectar">Conectar</button>
+  </div>
+
+  <section class="painel">
+    <div class="peso">
+      <span class="valor" id="pesoValor">--</span><span class="unidade">g</span>
+      <div class="rotulo">peso na célula de carga</div>
+    </div>
+    <div class="linha-status">
+      <span id="estadoDosagem">parado</span>
+      <span id="metaAtual">meta: --</span>
+    </div>
+  </section>
+
+  <section class="acoes">
+    <button id="btnBomba">Bomba/Rosca</button>
+  </section>
+
+  <section class="painel dosagem-secao">
+    <div class="dosagem">
+      <input id="metaInput" type="number" placeholder="quantidade em gramas" min="0">
+      <button id="btnDosar">Iniciar dosagem</button>
+      <button id="btnParar" class="parar">Parar</button>
+    </div>
+
+    <div class="servo-controle">
+      <label for="servoRange">Posição manual do servo (abertura do dosador)</label>
+      <input id="servoRange" type="range" min="0" max="180" value="0">
+    </div>
+  </section>
+</main>
+
+<script>
+  let baseUrl = "";
+  let intervaloStatus = null;
+
+  const els = {
+    ip: document.getElementById("ipEsp32"),
+    btnConectar: document.getElementById("btnConectar"),
+    statusDot: document.getElementById("statusDot"),
+    statusTexto: document.getElementById("statusTexto"),
+    peso: document.getElementById("pesoValor"),
+    estadoDosagem: document.getElementById("estadoDosagem"),
+    metaAtual: document.getElementById("metaAtual"),
+    btnBomba: document.getElementById("btnBomba"),
+    metaInput: document.getElementById("metaInput"),
+    btnDosar: document.getElementById("btnDosar"),
+    btnParar: document.getElementById("btnParar"),
+    servoRange: document.getElementById("servoRange"),
+  };
+
+  async function chamarApi(caminho, opcoes = {}) {
+    const resposta = await fetch(baseUrl + caminho, {
+      headers: { "Content-Type": "application/json" },
+      ...opcoes,
+    });
+    if (!resposta.ok) throw new Error("Falha na requisição: " + caminho);
+    return resposta.json();
+  }
+
+  function marcarConectado(ok) {
+    els.statusDot.classList.toggle("conectado", ok);
+    els.statusTexto.textContent = ok ? "conectado" : "desconectado";
+  }
+
+  async function atualizarStatus() {
+    try {
+      const dados = await chamarApi("/api/status");
+      els.peso.textContent = dados.peso.toFixed(1);
+      els.estadoDosagem.textContent = dados.dosando ? "dosando..." : "parado";
+      els.metaAtual.textContent = "meta: " + (dados.meta || "--") + " g";
+      els.btnBomba.classList.toggle("ligado", dados.bomba);
+      marcarConectado(true);
+    } catch (erro) {
+      marcarConectado(false);
+    }
+  }
+
+  els.btnConectar.addEventListener("click", () => {
+    baseUrl = "http://" + els.ip.value.trim();
+    clearInterval(intervaloStatus);
+    atualizarStatus();
+    intervaloStatus = setInterval(atualizarStatus, 1000);
+  });
+
+  els.btnBomba.addEventListener("click", async () => {
+    const ligado = els.btnBomba.classList.contains("ligado");
+    await chamarApi("/api/bomba", {
+      method: "POST",
+      body: JSON.stringify({ estado: !ligado }),
+    });
+    atualizarStatus();
+  });
+
+  els.btnDosar.addEventListener("click", async () => {
+    const meta = parseFloat(els.metaInput.value);
+    if (!meta || meta <= 0) return;
+    await chamarApi("/api/dosar", {
+      method: "POST",
+      body: JSON.stringify({ meta }),
+    });
+    atualizarStatus();
+  });
+
+  els.btnParar.addEventListener("click", async () => {
+    await chamarApi("/api/parar", { method: "POST" });
+    atualizarStatus();
+  });
+
+  els.servoRange.addEventListener("change", async () => {
+    await chamarApi("/api/servo", {
+      method: "POST",
+      body: JSON.stringify({ posicao: parseInt(els.servoRange.value, 10) }),
+    });
+  });
+</script>
+</body>
+</html>
