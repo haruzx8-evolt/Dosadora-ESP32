@@ -22,8 +22,8 @@
 #include <ESP32Servo.h>
 
 // ---------- Configurações de rede ----------
-const char* ssid  = "SEU_WIFI";
-const char* senha = "SUA_SENHA";
+const char* ssid  = "Visitantes_2_4";
+const char* senha = "Smarth4.0";
 
 // ---------- Pinos ----------
 #define HX711_DT   4
