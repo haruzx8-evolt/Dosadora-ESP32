@@ -1,6 +1,6 @@
 /*
   Dosadora Granular - ESP32
-  Grupo 3 - API REST para o site de controle/monitoramento
+  HexTech - API REST para o site de controle/monitoramento
 
   Bibliotecas necessárias (Gerenciador de Bibliotecas do Arduino IDE):
     - HX711 (bogde/HX711)
