@@ -134,6 +134,15 @@ void tratarDosar() {
   server.send(200, "application/json", "{\"ok\":true}");
 }
 
+void tratarTara() {
+  adicionarCORS();
+  Serial.println(">>> TARA (via site) <<<");
+  balanca.tare();
+  ultimoPeso = -999;
+  setColor(0,1,0); // 🟢 verde, igual à tara pelo botão físico
+  server.send(200, "application/json", "{\"ok\":true}");
+}
+
 void tratarParar() {
   adicionarCORS();
   dosando = false;
@@ -188,6 +197,8 @@ void setup() {
   server.on("/api/servo",  HTTP_OPTIONS, tratarOptions);
   server.on("/api/dosar",  HTTP_POST,    tratarDosar);
   server.on("/api/dosar",  HTTP_OPTIONS, tratarOptions);
+  server.on("/api/tara",   HTTP_POST,    tratarTara);
+  server.on("/api/tara",   HTTP_OPTIONS, tratarOptions);
   server.on("/api/parar",  HTTP_POST,    tratarParar);
   server.on("/api/parar",  HTTP_OPTIONS, tratarOptions);
 
